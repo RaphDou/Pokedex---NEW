@@ -1,95 +1,112 @@
-import React from 'react';
-import { Box, CardMedia, Typography, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { CardMedia, Typography, Button, Collapse } from '@mui/material';
 import { PokemonCard } from '../lib/types';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 interface CardDisplayProps {
   card: PokemonCard;
 }
 
 const CardDisplay: React.FC<CardDisplayProps> = ({ card }) => {
+  const [open, setOpen] = useState(false); // État pour gérer l'ouverture/fermeture du menu déroulant
+
+  // Fonction pour basculer l'état du menu déroulant
+  const handleToggle = () => {
+    setOpen(!open);
+  };
+
   return (
-    <Box
-      sx={{
-        position: 'relative',
+    <div
+      style={{
         textAlign: 'center',
-        borderRadius: 2,
-        overflow: 'hidden',
-        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-        transition: 'box-shadow 0.3s ease-in-out',
-        '&:hover': {
-          boxShadow: '0 8px 15px rgba(0, 0, 0, 0.2)',
-        },
+        marginBottom: '20px',
+        cursor: 'pointer',
       }}
     >
       <CardMedia
         component="img"
         alt={card.name}
         image={card.images.small}
-        sx={{
+        style={{
           objectFit: 'contain',
-          width: '100%',
+          width: '200px',
           height: 'auto',
-          transition: 'transform 0.2s ease',
-          '&:hover': {
-            transform: 'scale(1.05)',
-          },
+          transition: 'transform 0.3s ease',
+          margin: '0 auto',
         }}
+        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
       />
-      <Typography variant="h6" sx={{ fontSize: '1.1rem', marginTop: 1 }}>
+      <Typography variant="h6" style={{ fontSize: '1.1rem', marginTop: '10px' }}>
         {card.name}
       </Typography>
-      <Typography variant="body2" color="textSecondary">
-        {Array.isArray(card.types) && card.types.length > 0 ? card.types.join(', ') : 'Aucun type'}
-      </Typography>
-      <Typography variant="body2" color="textSecondary">
-        {card.hp} HP
-      </Typography>
 
-      {/* Afficher les attaques */}
-      <Typography variant="body2" sx={{ marginTop: 1 }}>
-        <strong>Attaques :</strong>
-      </Typography>
-      {Array.isArray(card.attacks) && card.attacks.length > 0 ? (
-        card.attacks.map((attack, index) => (
-          <Box key={index} sx={{ marginBottom: 1 }}>
-            <Typography variant="body2">
-              <strong>{attack.name}</strong> (Coût : {attack.cost.join(', ')}) 
-              - {attack.damage} dégâts
+      {/* Menu déroulant */}
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={handleToggle}
+        endIcon={<ExpandMoreIcon />}
+        style={{ marginTop: '10px' }}
+      >
+        Détails
+      </Button>
+
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <div style={{ marginTop: '10px', textAlign: 'left' }}>
+          <Typography variant="body2" color="textSecondary">
+            {Array.isArray(card.types) && card.types.length > 0 ? card.types.join(', ') : 'Aucun type'}
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            {card.hp} HP
+          </Typography>
+
+          {/* Afficher les attaques */}
+          <Typography variant="body2" style={{ marginTop: '10px' }}>
+            <strong>Attaques :</strong>
+          </Typography>
+          {Array.isArray(card.attacks) && card.attacks.length > 0 ? (
+            card.attacks.map((attack, index) => (
+              <div key={index} style={{ marginBottom: '10px' }}>
+                <Typography variant="body2">
+                  <strong>{attack.name}</strong> (Coût : {attack.cost.join(', ')}) - {attack.damage} dégâts
+                </Typography>
+                <Typography variant="body2">{attack.text}</Typography>
+              </div>
+            ))
+          ) : (
+            <Typography variant="body2" color="textSecondary">Aucune attaque disponible.</Typography>
+          )}
+
+          {/* Afficher la faiblesse */}
+          {Array.isArray(card.weaknesses) && card.weaknesses.length > 0 && (
+            <Typography variant="body2" color="error" style={{ marginTop: '10px' }}>
+              <strong>Faiblesse :</strong> {card.weaknesses.map(w => `${w.type} ×${w.value}`).join(', ')}
             </Typography>
-            <Typography variant="body2">{attack.text}</Typography>
-          </Box>
-        ))
-      ) : (
-        <Typography variant="body2" color="textSecondary">Aucune attaque disponible.</Typography>
-      )}
+          )}
 
-      {/* Afficher la faiblesse, en vérifiant d'abord si `weaknesses` existe */}
-      {Array.isArray(card.weaknesses) && card.weaknesses.length > 0 && (
-        <Typography variant="body2" color="error" sx={{ marginTop: 1 }}>
-          <strong>Faiblesse :</strong> {card.weaknesses.map(w => `${w.type} ×${w.value}`).join(', ')}
-        </Typography>
-      )}
+          {/* Coût de retraite */}
+          {Array.isArray(card.retreatCost) && card.retreatCost.length > 0 && (
+            <Typography variant="body2" color="textSecondary" style={{ marginTop: '10px' }}>
+              Coût de retraite : {card.retreatCost.length} ({card.retreatCost.join(', ')})
+            </Typography>
+          )}
 
-      {/* Coût de retraite */}
-      {Array.isArray(card.retreatCost) && card.retreatCost.length > 0 && (
-        <Typography variant="body2" color="textSecondary" sx={{ marginTop: 1 }}>
-          Coût de retraite : {card.retreatCost.length} ({card.retreatCost.join(', ')})
-        </Typography>
-      )}
-
-      {/* Lien vers TCGPlayer */}
-      {card.tcgplayer?.url && (
-        <Button 
-          variant="outlined" 
-          color="primary" 
-          href={card.tcgplayer.url} 
-          target="_blank" 
-          sx={{ marginTop: 2 }}
-        >
-          Voir sur TCGPlayer
-        </Button>
-      )}
-    </Box>
+          {/* Lien vers TCGPlayer */}
+          {card.tcgplayer?.url && (
+            <Button
+              variant="outlined"
+              color="primary"
+              href={card.tcgplayer.url}
+              target="_blank"
+              style={{ marginTop: '20px' }}
+            >
+              Voir sur TCGPlayer
+            </Button>
+          )}
+        </div>
+      </Collapse>
+    </div>
   );
 };
 
