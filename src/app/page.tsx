@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Grid, Typography, Pagination, Container, TextField, Button, CircularProgress } from '@mui/material';
+import { Container, Typography } from '@mui/material';
 import { fetchPokemons } from '../lib/pokemonApi';
 import { PokemonCard } from '../lib/types';
-import CardDisplay from '@/components/CardDisplay.tsx';
+import CardGrid from '@/components/CardGrid';
+import PaginationControl from '@/components/PaginationControl';
+import SearchBar from '@/components/SearchBar';
+
 
 const Page = () => {
   const [cards, setCards] = useState<PokemonCard[]>([]);
@@ -12,10 +15,9 @@ const Page = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [cardsPerPage] = useState<number>(18);
   const [totalCards, setTotalCards] = useState<number>(0);
-  const [searchQuery, setSearchQuery] = useState<string>(''); // Nouvelle variable d'état pour la recherche
+  const [searchQuery, setSearchQuery] = useState<string>(''); 
   const [isClient, setIsClient] = useState(false);
 
-  // Utiliser useEffect pour définir isClient après le rendu côté client
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -23,7 +25,7 @@ const Page = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const pokemonData = await fetchPokemons(currentPage, cardsPerPage, searchQuery); // Passer la query dans l'appel API
+      const pokemonData = await fetchPokemons(currentPage, cardsPerPage, searchQuery);
       if (pokemonData && pokemonData.cards) {
         setCards(pokemonData.cards);
         setTotalCards(pokemonData.totalCount);
@@ -52,11 +54,18 @@ const Page = () => {
       }
       setLoading(false);
     };
-    getPokemons();
-  }, [currentPage, cardsPerPage, searchQuery]); // Inclure searchQuery comme dépendance
+
+    const totalPages = Math.ceil(totalCards / cardsPerPage);
+
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    } else {
+      getPokemons();
+    }
+  }, [currentPage, cardsPerPage, searchQuery, totalCards]);
 
   if (!isClient) {
-    return null; // Ne rien rendre tant que nous ne sommes pas côté client
+    return null;
   }
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
@@ -69,49 +78,15 @@ const Page = () => {
         Catalogue des Cartes Pokémon
       </Typography>
 
-      {/* Formulaire de recherche */}
-      <TextField
-        label="Rechercher une carte"
-        variant="outlined"
-        fullWidth
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        sx={{ marginBottom: 3 }}
-      />
-      <Button variant="contained" color="primary" onClick={handleSearch}>Rechercher</Button>
+      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} handleSearch={handleSearch} />
+      
+      <CardGrid cards={cards} loading={loading} />
 
-      {/* Affichage du Spinner en attendant les données */}
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '50px 0' }}>
-          <CircularProgress color="primary" />
-        </div>
-      ) : (
-        <Grid container spacing={2}>
-          {cards.length > 0 ? (
-            cards.map((card) => (
-              <Grid item xs={12} sm={6} md={4} key={card.id}>
-                <CardDisplay card={card} />
-              </Grid>
-            ))
-          ) : (
-            <Typography variant="h6" color="textSecondary" sx={{ textAlign: 'center', width: '100%' }}>
-              Aucun Pokémon trouvé.
-            </Typography>
-          )}
-        </Grid>
-      )}
-
-      <Pagination
-        count={Math.ceil(totalCards / cardsPerPage)}
-        page={currentPage}
-        onChange={handlePageChange}
-        color="primary"
-        sx={{
-          marginTop: 2,
-          display: 'flex',
-          justifyContent: 'center',
-          paddingBottom: 2,
-        }}
+      <PaginationControl
+        totalCards={totalCards}
+        cardsPerPage={cardsPerPage}
+        currentPage={currentPage}
+        handlePageChange={handlePageChange}
       />
     </Container>
   );
