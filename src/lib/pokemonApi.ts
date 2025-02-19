@@ -1,4 +1,3 @@
-// src/lib/pokemonAPI.ts
 const API_KEY = '967be34b-4612-447f-8c04-7e94f27392d6'; // Ta clé API
 
 export const fetchPokemons = async (page: number, pageSize: number) => {

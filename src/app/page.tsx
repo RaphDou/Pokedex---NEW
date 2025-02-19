@@ -1,10 +1,8 @@
-// src/app/page.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { Grid, Typography, Pagination, Container } from '@mui/material';
 import { fetchPokemons } from '../lib/pokemonApi';
-
 import { PokemonCard } from '../lib/types';
 import CardDisplay from '@/components/CardDisplay.tsx';
 
