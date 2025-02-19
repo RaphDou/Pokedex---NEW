@@ -1,57 +1,52 @@
-'use client'; // Directive pour indiquer que ce fichier utilise des hooks React côté client.
+// src/components/CardDisplay.tsx
+import React from 'react';
+import { Box, CardMedia, Typography } from '@mui/material';
+import { PokemonCard } from '../lib/types';
 
-import React, { useEffect, useState } from 'react';
-import { Grid, Card, CardContent, Typography, CardMedia, Container } from '@mui/material';
-import { fetchPokemons } from '../lib/pokemonApi'; // Assurez-vous de la bonne casse ici
-import { PokemonCard } from '../lib/types'; // Importer le type
+interface CardDisplayProps {
+  card: PokemonCard;
+}
 
-const CardsDisplay = () => {
-  const [cards, setCards] = useState<PokemonCard[]>([]); // Utiliser le type
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const getPokemons = async () => {
-      const pokemonData = await fetchPokemons();
-      setCards(pokemonData);
-      setLoading(false);
-    };
-    getPokemons();
-  }, []);
-
-  if (loading) {
-    return <Typography>Chargement des cartes...</Typography>;
-  }
-
+const CardDisplay: React.FC<CardDisplayProps> = ({ card }) => {
   return (
-    <Container>
-    <Grid container spacing={2}>
-      {cards.map((card) => (
-        <Grid item xs={12} sm={6} md={4} key={card.id}>
-          <Card sx={{ maxWidth: 345, width: '100%' }}>
-            <CardMedia
-              component="img"
-              alt={card.name}
-              height="200"  // Réduire la taille de l'image
-              image={card.images.small} // Utilise l'image de la carte
-              sx={{ objectFit: 'contain' }} // L'image reste bien proportionnée
-            />
-            <CardContent>
-              <Typography variant="h6" sx={{ fontSize: '1rem' }}>
-                {card.name}
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                {card.types.join(', ')} {/* Affiche les types de la carte */}
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                {card.hp} HP
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
-    </Container>
+    <Box
+      sx={{
+        position: 'relative',
+        textAlign: 'center',
+        borderRadius: 2,
+        overflow: 'hidden',
+        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+        transition: 'box-shadow 0.3s ease-in-out',
+        '&:hover': {
+          boxShadow: '0 8px 15px rgba(0, 0, 0, 0.2)',
+        },
+      }}
+    >
+      <CardMedia
+        component="img"
+        alt={card.name}
+        image={card.images.small}
+        sx={{
+          objectFit: 'contain',
+          width: '100%',
+          height: 'auto',
+          transition: 'transform 0.2s ease',
+          '&:hover': {
+            transform: 'scale(1.05)',
+          },
+        }}
+      />
+      <Typography variant="h6" sx={{ fontSize: '1.1rem', marginTop: 1 }}>
+        {card.name}
+      </Typography>
+      <Typography variant="body2" color="textSecondary">
+        {card.types.join(', ')}
+      </Typography>
+      <Typography variant="body2" color="textSecondary">
+        {card.hp} HP
+      </Typography>
+    </Box>
   );
 };
 
-export default CardsDisplay;
+export default CardDisplay;
