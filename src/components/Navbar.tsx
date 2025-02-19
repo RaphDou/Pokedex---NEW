@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
           </Typography>
           <div>
             <Button color="inherit" component={Link} href="/">Home</Button>
-            <Button color="inherit" component={Link} href="/pokedex">Pokédex</Button>
+            <Button color="inherit" component={Link} href="/Sets">Sets</Button>
             <Button color="inherit" component={Link} href="/about">About</Button>
           </div>
         </Container>
