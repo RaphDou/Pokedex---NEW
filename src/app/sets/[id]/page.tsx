@@ -1,13 +1,11 @@
-// src/app/sets/[id]/page.tsx
-
 "use client";  // Assurez-vous d'utiliser 'use client' pour les hooks côté client
 
 import React, { useEffect, useState } from 'react';
 import { Container, Typography, CircularProgress, Grid } from '@mui/material';
 import { fetchSetDetails, fetchCardsBySet } from '@/lib/pokemonApi';
-import { PokemonCard } from '@/lib/types';  // Assurez-vous que le type PokemonCard est défini dans un fichier types.ts ou similaire
-import { useParams } from 'next/navigation'; // Utiliser useParams() pour récupérer l'ID dans App Router
-import Image from 'next/image'; // Utilisation de Image pour optimiser les images
+import { PokemonCard } from '@/lib/types';
+import { useParams } from 'next/navigation';  // Utiliser useParams() pour récupérer l'ID dans App Router
+import CardDisplay from '@/components/CardDisplay.tsx';
 
 interface SetDetails {
   name: string;
@@ -75,29 +73,8 @@ const SetDetailsPage: React.FC = () => {
       <Grid container spacing={4}>
         {cards.map((card) => (
           <Grid item xs={12} sm={6} md={4} key={card.id}>
-            <div style={{ textAlign: 'center', cursor: 'pointer' }}>
-              {card.images.large && (
-                <Image
-                  src={card.images.large}
-                  alt={card.name}
-                  width={250}  // Spécifiez la largeur pour Image
-                  height={250} // Spécifiez la hauteur pour Image
-                  style={{
-                    objectFit: 'contain',
-                    marginBottom: '10px',
-                  }}
-                />
-              )}
-              <Typography variant="h6" gutterBottom>
-                {card.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                HP: {card.hp}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Types: {Array.isArray(card.types) ? card.types.join(', ') : 'Non spécifié'}
-              </Typography>
-            </div>
+            {/* Remplacer l'affichage des cartes par le composant CardDisplay */}
+            <CardDisplay card={card} />
           </Grid>
         ))}
       </Grid>

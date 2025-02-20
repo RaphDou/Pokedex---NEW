@@ -54,38 +54,45 @@ const CardDisplay: React.FC<CardDisplayProps> = ({ card }) => {
 
       <Collapse in={open} timeout="auto" unmountOnExit>
         <div style={{ marginTop: '10px', textAlign: 'left' }}>
-          <Typography variant="body2" color="textSecondary">
-            {Array.isArray(card.types) && card.types.length > 0 ? card.types.join(', ') : 'Aucun type'}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            {card.hp} HP
-          </Typography>
-
-          {/* Afficher les attaques */}
-          <Typography variant="body2" style={{ marginTop: '10px' }}>
-            <strong>Attaques :</strong>
-          </Typography>
-          {Array.isArray(card.attacks) && card.attacks.length > 0 ? (
-            card.attacks.map((attack, index) => (
-              <div key={index} style={{ marginBottom: '10px' }}>
-                <Typography variant="body2">
-                  <strong>{attack.name}</strong> (Coût : {attack.cost.join(', ')}) - {attack.damage} dégâts
-                </Typography>
-                <Typography variant="body2">{attack.text}</Typography>
-              </div>
-            ))
-          ) : (
-            <Typography variant="body2" color="textSecondary">Aucune attaque disponible.</Typography>
+          {/* Afficher les types uniquement si disponibles */}
+          {Array.isArray(card.types) && card.types.length > 0 && (
+            <Typography variant="body2" color="textSecondary">
+              {card.types.join(', ')}
+            </Typography>
           )}
 
-          {/* Afficher la faiblesse */}
+          {/* Afficher les HP uniquement si disponibles */}
+          {card.hp && (
+            <Typography variant="body2" color="textSecondary">
+              {card.hp} HP
+            </Typography>
+          )}
+
+          {/* Afficher les attaques uniquement si disponibles */}
+          {Array.isArray(card.attacks) && card.attacks.length > 0 && (
+            <>
+              <Typography variant="body2" style={{ marginTop: '10px' }}>
+                <strong>Attaques :</strong>
+              </Typography>
+              {card.attacks.map((attack, index) => (
+                <div key={index} style={{ marginBottom: '10px' }}>
+                  <Typography variant="body2">
+                    <strong>{attack.name}</strong> (Coût : {attack.cost.join(', ')}) - {attack.damage} dégâts
+                  </Typography>
+                  <Typography variant="body2">{attack.text}</Typography>
+                </div>
+              ))}
+            </>
+          )}
+
+          {/* Afficher la faiblesse uniquement si disponible */}
           {Array.isArray(card.weaknesses) && card.weaknesses.length > 0 && (
             <Typography variant="body2" color="error" style={{ marginTop: '10px' }}>
               <strong>Faiblesse :</strong> {card.weaknesses.map(w => `${w.type} ×${w.value}`).join(', ')}
             </Typography>
           )}
 
-          {/* Coût de retraite */}
+          {/* Afficher le coût de retraite uniquement si disponible */}
           {Array.isArray(card.retreatCost) && card.retreatCost.length > 0 && (
             <Typography variant="body2" color="textSecondary" style={{ marginTop: '10px' }}>
               Coût de retraite : {card.retreatCost.length} ({card.retreatCost.join(', ')})
