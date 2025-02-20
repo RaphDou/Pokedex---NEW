@@ -15,6 +15,12 @@ const CardDisplay: React.FC<CardDisplayProps> = ({ card }) => {
     setOpen(!open);
   };
 
+  const getTypeIcon = (type: string) => {
+    // Chargement de l'icône en fonction du type
+    const typeImage = type.toLowerCase(); // Assurez-vous que le type est en minuscule pour correspondre aux noms de fichiers
+    return `/types/${typeImage}.png`; // Chemin relatif de l'icône
+  };
+
   return (
     <div
       style={{
@@ -57,7 +63,17 @@ const CardDisplay: React.FC<CardDisplayProps> = ({ card }) => {
           {/* Afficher les types uniquement si disponibles */}
           {Array.isArray(card.types) && card.types.length > 0 && (
             <Typography variant="body2" color="textSecondary">
-              Types: {card.types.join(', ')}
+              Types: 
+              {card.types.map((type, index) => (
+                <span key={index} style={{ marginRight: '8px' }}>
+                  <img
+                    src={getTypeIcon(type)} // Charger l'icône pour chaque type
+                    alt={type}
+                    style={{ width: '20px', height: '20px', verticalAlign: 'middle' }}
+                  />
+                  {type}
+                </span>
+              ))}
             </Typography>
           )}
 
@@ -109,7 +125,17 @@ const CardDisplay: React.FC<CardDisplayProps> = ({ card }) => {
           {/* Afficher la faiblesse uniquement si disponible */}
           {Array.isArray(card.weaknesses) && card.weaknesses.length > 0 && (
             <Typography variant="body2" color="error" style={{ marginTop: '10px' }}>
-              <strong>Faiblesse :</strong> {card.weaknesses.map(w => `${w.type} ×${w.value}`).join(', ')}
+              <strong>Faiblesse :</strong> 
+              {card.weaknesses.map((w, index) => (
+                <span key={index} style={{ marginRight: '8px' }}>
+                  <img
+                    src={getTypeIcon(w.type)} // Afficher l'icône de la faiblesse
+                    alt={w.type}
+                    style={{ width: '20px', height: '20px', verticalAlign: 'middle' }}
+                  />
+                  {w.type} ×{w.value}
+                </span>
+              ))}
             </Typography>
           )}
 

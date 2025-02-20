@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from 'react';
 import { Container, Typography, CircularProgress, Grid } from '@mui/material';
@@ -11,6 +11,7 @@ interface Set {
   name: string;
   releaseDate: string;
   total: number;
+  types?: string[];  // Ajout du champ types pour chaque set
   images: {
     symbol: string;
     logo: string;
@@ -31,6 +32,12 @@ const SetsPage: React.FC = () => {
 
     getSets();
   }, []);
+
+  const getTypeIcon = (type: string) => {
+    // Fonction pour charger l'icône de type en fonction du nom
+    const typeImage = type.toLowerCase();  // Assurez-vous que le type est en minuscule pour correspondre aux noms de fichiers
+    return `/types/${typeImage}.png`; // Chemin relatif de l'icône
+  };
 
   if (loading) {
     return (
@@ -73,6 +80,25 @@ const SetsPage: React.FC = () => {
                 <Typography variant="body2" color="text.secondary">
                   Total de cartes: {set.total}
                 </Typography>
+
+                {/* Affichage des icônes des types du set si disponibles */}
+                {set.types && set.types.length > 0 && (
+                  <div style={{ marginTop: '10px' }}>
+                    {set.types.map((type, index) => (
+                      <img
+                        key={index}
+                        src={getTypeIcon(type)}  // Charger l'icône pour chaque type
+                        alt={type}
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          verticalAlign: 'middle',
+                          marginRight: '8px',
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </Link>
           </Grid>
