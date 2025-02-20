@@ -78,3 +78,33 @@ export const fetchSets = async () => {
     return [];
   }
 };
+
+export const fetchCardsBySet = async (setId: string) => {
+  try {
+    const response = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${setId}`);
+    const data = await response.json();
+    return data.data; // Les cartes associées au set
+  } catch (error) {
+    console.error("Erreur de récupération des cartes:", error);
+    return [];
+  }
+};
+
+// src/lib/pokemonApi.ts
+export const fetchPokemonDetails = async (slug: string) => {
+  try {
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${slug}`);
+    const data = await response.json();
+    // Adapte les données à ton format de carte
+    return {
+      name: data.name,
+      types: data.types.map((type: any) => type.type.name),
+      hp: data.stats.find((stat: any) => stat.stat.name === 'hp')?.base_stat,
+      abilities: data.abilities.map((ability: any) => ability.ability.name),
+      image: data.sprites.other['official-artwork'].front_default,
+    };
+  } catch (error) {
+    console.error('Erreur lors de la récupération des détails du Pokémon', error);
+    throw error;
+  }
+};

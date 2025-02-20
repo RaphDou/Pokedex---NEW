@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/PokeAPI/sprites/**', // Permet toutes les images sous ce chemin
       },
+      {
+        protocol: 'https',
+        hostname: 'images.pokemontcg.io', // Ajoutez ce domaine ici
+        port: '',
+        pathname: '/**', // Permet toutes les images sous ce chemin
+      },
     ],
   },
 };
