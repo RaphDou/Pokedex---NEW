@@ -57,7 +57,28 @@ const CardDisplay: React.FC<CardDisplayProps> = ({ card }) => {
           {/* Afficher les types uniquement si disponibles */}
           {Array.isArray(card.types) && card.types.length > 0 && (
             <Typography variant="body2" color="textSecondary">
-              {card.types.join(', ')}
+              Types: {card.types.join(', ')}
+            </Typography>
+          )}
+
+          {/* Afficher les sous-types uniquement si disponibles */}
+          {Array.isArray(card.subtypes) && card.subtypes.length > 0 && (
+            <Typography variant="body2" color="textSecondary">
+              Sous-types: {card.subtypes.join(', ')}
+            </Typography>
+          )}
+
+          {/* Afficher le super-type uniquement si disponible */}
+          {card.supertype && (
+            <Typography variant="body2" color="textSecondary">
+              Super-type: {card.supertype}
+            </Typography>
+          )}
+
+          {/* Afficher la rareté uniquement si disponible */}
+          {card.rarity && (
+            <Typography variant="body2" color="textSecondary">
+              Rareté: {card.rarity}
             </Typography>
           )}
 
