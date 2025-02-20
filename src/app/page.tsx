@@ -1,22 +1,17 @@
-// src/app/page.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Grid, Typography, Pagination, Container } from '@mui/material';
+import { Grid, Typography, Container, Select, MenuItem, InputLabel, FormControl, SelectChangeEvent } from '@mui/material';
 import { fetchPokemons } from '../lib/pokemonApi';
-
 import { PokemonCard } from '../lib/types';
 import CardDisplay from '@/components/CardDisplay.tsx';
 
 const Page = () => {
   const [cards, setCards] = useState<PokemonCard[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [cardsPerPage] = useState<number>(18);
-  const [totalCards, setTotalCards] = useState<number>(0);
+  const [sortBy, setSortBy] = useState<string>('name'); // Critère de tri initialisé sur "name"
   const [isClient, setIsClient] = useState(false);
 
-  // Utiliser useEffect pour définir isClient après le rendu côté client
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -25,10 +20,10 @@ const Page = () => {
     const getPokemons = async () => {
       setLoading(true);
       try {
-        const pokemonData = await fetchPokemons(currentPage, cardsPerPage);
+        // Passer des valeurs par défaut pour `page` et `pageSize`
+        const pokemonData = await fetchPokemons(1, 1000); // Supposons que vous voulez récupérer jusqu'à 1000 cartes
         if (pokemonData && pokemonData.cards) {
           setCards(pokemonData.cards);
-          setTotalCards(pokemonData.totalCount);
         } else {
           setCards([]);
         }
@@ -38,7 +33,29 @@ const Page = () => {
       setLoading(false);
     };
     getPokemons();
-  }, [currentPage, cardsPerPage]);
+  }, []);
+  
+
+  const handleSortChange = (event: SelectChangeEvent<string>) => {
+    setSortBy(event.target.value); // `event.target.value` est maintenant du type `string`
+  };
+
+  // Fonction de tri des cartes
+  const sortCards = (cards: PokemonCard[], sortBy: string) => {
+    return cards.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'releaseDate':
+          // Trier par releaseDate du set associé à chaque carte
+          return new Date(a.set.releaseDate).getTime() - new Date(b.set.releaseDate).getTime();
+        case 'rarity':
+          return a.rarity?.localeCompare(b.rarity || '') || 0;
+        default:
+          return 0;
+      }
+    });
+  };
 
   if (!isClient) {
     return null; // Ne rien rendre tant que nous ne sommes pas côté client
@@ -48,18 +65,32 @@ const Page = () => {
     return <Typography variant="h6" color="primary">Chargement des cartes...</Typography>;
   }
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
-  };
+  // Trier les cartes avant de les afficher
+  const sortedCards = sortCards(cards, sortBy);
 
   return (
     <Container>
       <Typography variant="h4" color="primary" sx={{ marginBottom: 3, textAlign: 'center' }}>
         Catalogue des Cartes Pokémon
       </Typography>
+
+      {/* Dropdown pour choisir le critère de tri */}
+      <FormControl fullWidth sx={{ marginBottom: 3 }}>
+        <InputLabel>Tri par</InputLabel>
+        <Select
+          value={sortBy}
+          label="Tri par"
+          onChange={handleSortChange} // Utilisation du bon type
+        >
+          <MenuItem value="name">Nom</MenuItem>
+          <MenuItem value="releaseDate">Date de sortie</MenuItem>
+          <MenuItem value="rarity">Rareté</MenuItem>
+        </Select>
+      </FormControl>
+
       <Grid container spacing={2}>
-        {cards.length > 0 ? (
-          cards.map((card) => (
+        {sortedCards.length > 0 ? (
+          sortedCards.map((card) => (
             <Grid item xs={12} sm={6} md={4} key={card.id}>
               <CardDisplay card={card} />
             </Grid>
@@ -70,19 +101,6 @@ const Page = () => {
           </Typography>
         )}
       </Grid>
-
-      <Pagination
-        count={Math.ceil(totalCards / cardsPerPage)}
-        page={currentPage}
-        onChange={handlePageChange}
-        color="primary"
-        sx={{
-          marginTop: 2,
-          display: 'flex',
-          justifyContent: 'center',
-          paddingBottom: 2,
-        }}
-      />
     </Container>
   );
 };

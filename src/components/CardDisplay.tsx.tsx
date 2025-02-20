@@ -1,166 +1,205 @@
 import React, { useState } from 'react';
-import { CardMedia, Typography, Button, Collapse } from '@mui/material';
+import { CardMedia, Typography, Button, Dialog, DialogContent, DialogTitle, IconButton, Grid, Box } from '@mui/material';
 import { PokemonCard } from '../lib/types';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface CardDisplayProps {
   card: PokemonCard;
 }
 
 const CardDisplay: React.FC<CardDisplayProps> = ({ card }) => {
-  const [open, setOpen] = useState(false); // État pour gérer l'ouverture/fermeture du menu déroulant
+  const [openPopup, setOpenPopup] = useState(false);
 
-  // Fonction pour basculer l'état du menu déroulant
-  const handleToggle = () => {
-    setOpen(!open);
+  const handleOpenPopup = () => {
+    setOpenPopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setOpenPopup(false);
   };
 
   const getTypeIcon = (type: string) => {
-    // Chargement de l'icône en fonction du type
-    const typeImage = type.toLowerCase(); // Assurez-vous que le type est en minuscule pour correspondre aux noms de fichiers
+    const typeImage = type.toLowerCase();
     return `/types/${typeImage}.png`; // Chemin relatif de l'icône
   };
 
   return (
-    <div
-      style={{
-        textAlign: 'center',
-        marginBottom: '20px',
-        cursor: 'pointer',
-      }}
-    >
-      <CardMedia
-        component="img"
-        alt={card.name}
-        image={card.images.small}
+    <>
+      <div
         style={{
-          objectFit: 'contain',
-          width: '200px',
-          height: 'auto',
-          transition: 'transform 0.3s ease',
-          margin: '0 auto',
+          textAlign: 'center',
+          marginBottom: '20px',
+          cursor: 'pointer',
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
-        onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-      />
-      <Typography variant="h6" style={{ fontSize: '1.1rem', marginTop: '10px' }}>
-        {card.name}
-      </Typography>
-
-      {/* Menu déroulant */}
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={handleToggle}
-        endIcon={<ExpandMoreIcon />}
-        style={{ marginTop: '10px' }}
+        onClick={handleOpenPopup}
       >
-        Détails
-      </Button>
+        <CardMedia
+          component="img"
+          alt={card.name}
+          image={card.images.small}
+          style={{
+            objectFit: 'contain',
+            width: '200px',
+            height: 'auto',
+            transition: 'transform 0.3s ease',
+            margin: '0 auto',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+        />
+        <Typography variant="h6" style={{ fontSize: '1.1rem', marginTop: '10px' }}>
+          {card.name}
+        </Typography>
+      </div>
 
-      <Collapse in={open} timeout="auto" unmountOnExit>
-        <div style={{ marginTop: '10px', textAlign: 'left' }}>
-          {/* Afficher les types uniquement si disponibles */}
-          {Array.isArray(card.types) && card.types.length > 0 && (
-            <Typography variant="body2" color="textSecondary">
-              Types: 
-              {card.types.map((type, index) => (
-                <span key={index} style={{ marginRight: '8px' }}>
-                  <img
-                    src={getTypeIcon(type)} // Charger l'icône pour chaque type
-                    alt={type}
-                    style={{ width: '20px', height: '20px', verticalAlign: 'middle' }}
-                  />
-                  {type}
-                </span>
-              ))}
-            </Typography>
-          )}
+      <Dialog
+        open={openPopup}
+        onClose={handleClosePopup}
+        maxWidth="md"
+        fullWidth
+        aria-labelledby="pokemon-details-popup"
+      >
+        <DialogTitle>
+          <Typography>{card.name}</Typography>
+          <IconButton
+            aria-label="close"
+            onClick={handleClosePopup}
+            style={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Grid container spacing={3}>
+            {/* Image de la carte à gauche */}
+            <Grid item xs={12} md={6}>
+              <CardMedia
+                component="img"
+                alt={card.name}
+                image={card.images.large} // Utilisation de la grande image pour la popup
+                style={{
+                  objectFit: 'contain',
+                  width: '100%',
+                  height: 'auto',
+                }}
+              />
+            </Grid>
 
-          {/* Afficher les sous-types uniquement si disponibles */}
-          {Array.isArray(card.subtypes) && card.subtypes.length > 0 && (
-            <Typography variant="body2" color="textSecondary">
-              Sous-types: {card.subtypes.join(', ')}
-            </Typography>
-          )}
-
-          {/* Afficher le super-type uniquement si disponible */}
-          {card.supertype && (
-            <Typography variant="body2" color="textSecondary">
-              Super-type: {card.supertype}
-            </Typography>
-          )}
-
-          {/* Afficher la rareté uniquement si disponible */}
-          {card.rarity && (
-            <Typography variant="body2" color="textSecondary">
-              Rareté: {card.rarity}
-            </Typography>
-          )}
-
-          {/* Afficher les HP uniquement si disponibles */}
-          {card.hp && (
-            <Typography variant="body2" color="textSecondary">
-              {card.hp} HP
-            </Typography>
-          )}
-
-          {/* Afficher les attaques uniquement si disponibles */}
-          {Array.isArray(card.attacks) && card.attacks.length > 0 && (
-            <>
-              <Typography variant="body2" style={{ marginTop: '10px' }}>
-                <strong>Attaques :</strong>
-              </Typography>
-              {card.attacks.map((attack, index) => (
-                <div key={index} style={{ marginBottom: '10px' }}>
-                  <Typography variant="body2">
-                    <strong>{attack.name}</strong> (Coût : {attack.cost.join(', ')}) - {attack.damage} dégâts
+            {/* Informations détaillées à droite */}
+            <Grid item xs={12} md={6}>
+              <Box>
+                {Array.isArray(card.types) && card.types.length > 0 && (
+                  <Typography variant="body1">
+                    <strong>Types:</strong>{' '}
+                    {card.types.map((type, index) => (
+                      <span key={index} style={{ marginRight: '8px' }}>
+                        <img
+                          src={getTypeIcon(type)}
+                          alt={type}
+                          style={{ width: '20px', height: '20px', verticalAlign: 'middle' }}
+                        />
+                      </span>
+                    ))}
                   </Typography>
-                  <Typography variant="body2">{attack.text}</Typography>
-                </div>
-              ))}
-            </>
-          )}
+                )}
 
-          {/* Afficher la faiblesse uniquement si disponible */}
-          {Array.isArray(card.weaknesses) && card.weaknesses.length > 0 && (
-            <Typography variant="body2" color="error" style={{ marginTop: '10px' }}>
-              <strong>Faiblesse :</strong> 
-              {card.weaknesses.map((w, index) => (
-                <span key={index} style={{ marginRight: '8px' }}>
-                  <img
-                    src={getTypeIcon(w.type)} // Afficher l'icône de la faiblesse
-                    alt={w.type}
-                    style={{ width: '20px', height: '20px', verticalAlign: 'middle' }}
-                  />
-                  {w.type} ×{w.value}
-                </span>
-              ))}
-            </Typography>
-          )}
+                {Array.isArray(card.subtypes) && card.subtypes.length > 0 && (
+                  <Typography variant="body1" style={{ marginTop: '10px' }}>
+                    <strong>Sous-types:</strong> {card.subtypes.join(', ')}
+                  </Typography>
+                )}
 
-          {/* Afficher le coût de retraite uniquement si disponible */}
-          {Array.isArray(card.retreatCost) && card.retreatCost.length > 0 && (
-            <Typography variant="body2" color="textSecondary" style={{ marginTop: '10px' }}>
-              Coût de retraite : {card.retreatCost.length} ({card.retreatCost.join(', ')})
-            </Typography>
-          )}
+                {card.supertype && (
+                  <Typography variant="body1" style={{ marginTop: '10px' }}>
+                    <strong>Super-type:</strong> {card.supertype}
+                  </Typography>
+                )}
 
-          {/* Lien vers TCGPlayer */}
-          {card.tcgplayer?.url && (
-            <Button
-              variant="outlined"
-              color="primary"
-              href={card.tcgplayer.url}
-              target="_blank"
-              style={{ marginTop: '20px' }}
-            >
-              Voir sur TCGPlayer
-            </Button>
-          )}
-        </div>
-      </Collapse>
-    </div>
+                {card.rarity && (
+                  <Typography variant="body1" style={{ marginTop: '10px' }}>
+                    <strong>Rareté:</strong> {card.rarity}
+                  </Typography>
+                )}
+
+                {card.hp && (
+                  <Typography variant="body1" style={{ marginTop: '10px' }}>
+                    <strong>{card.hp} HP</strong>
+                  </Typography>
+                )}
+
+                {Array.isArray(card.attacks) && card.attacks.length > 0 && (
+                  <>
+                    <Typography variant="body1" style={{ marginTop: '20px' }}>
+                      <strong>Attaques :</strong>
+                    </Typography>
+                    {card.attacks.map((attack, index) => (
+                      <Box key={index} style={{ marginBottom: '10px' }}>
+                        <Typography variant="body1">
+                          <strong>{attack.name}</strong> (Coût :{' '}
+                          {attack.cost.map((costType, costIndex) => (
+                            <span key={costIndex} style={{ marginRight: '4px' }}>
+                              <img
+                                src={getTypeIcon(costType)}
+                                alt={costType}
+                                style={{ width: '20px', height: '20px', verticalAlign: 'middle' }}
+                              />
+                            </span>
+                          ))}) - {attack.damage} dégâts
+                        </Typography>
+                        <Typography variant="body2">{attack.text}</Typography>
+                      </Box>
+                    ))}
+                  </>
+                )}
+
+                {Array.isArray(card.weaknesses) && card.weaknesses.length > 0 && (
+                  <Typography variant="body1" color="error" style={{ marginTop: '20px' }}>
+                    <strong>Faiblesses :</strong>{' '}
+                    {card.weaknesses.map((w, index) => (
+                      <span key={index} style={{ marginRight: '8px' }}>
+                        <img
+                          src={getTypeIcon(w.type)}
+                          alt={w.type}
+                          style={{ width: '20px', height: '20px', verticalAlign: 'middle' }}
+                        />
+                        ×{w.value}
+                      </span>
+                    ))}
+                  </Typography>
+                )}
+
+                {Array.isArray(card.retreatCost) && card.retreatCost.length > 0 && (
+                  <Typography variant="body1" style={{ marginTop: '20px' }}>
+                    <strong>Coût de retraite :</strong>{' '}
+                    {card.retreatCost.map((costType, costIndex) => (
+                      <span key={costIndex} style={{ marginRight: '4px' }}>
+                        <img
+                          src={getTypeIcon(costType)}
+                          alt={costType}
+                          style={{ width: '20px', height: '20px', verticalAlign: 'middle' }}
+                        />
+                      </span>
+                    ))}
+                  </Typography>
+                )}
+
+                {card.tcgplayer?.url && (
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    href={card.tcgplayer.url}
+                    target="_blank"
+                    style={{ marginTop: '20px' }}
+                  >
+                    Voir sur TCGPlayer
+                  </Button>
+                )}
+              </Box>
+            </Grid>
+          </Grid>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
