@@ -1,8 +1,9 @@
 // src/app/layout.tsx
 
 import React from "react";
-import Navbar from "../components/Navbar"; // Adjust path if needed
+import Navbar from "../components/Navbar"; // Ajuste le chemin si nécessaire
 import { Geist, Geist_Mono } from "next/font/google";
+import BreadcrumbsComponent from "../components/BreadcrumbsComponent"; // Importer ton composant de fil d'Ariane
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,9 +28,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {/* Navbar is now included in the root layout */}
+        {/* Navbar est inclus dans le layout principal */}
         <Navbar />
-        {children} {/* This renders the specific page content */}
+
+        {/* Fil d'Ariane global */}
+        <div>
+          <BreadcrumbsComponent />
+        </div>
+
+        {/* Contenu de la page spécifique */}
+        {children}
       </body>
     </html>
   );

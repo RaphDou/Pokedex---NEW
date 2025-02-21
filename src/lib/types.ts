@@ -1,10 +1,23 @@
+// types.ts
+
+export interface Set {
+  id: string;
+  name: string;
+  releaseDate: string;
+  total: number;
+  images: {
+    symbol: string;
+    logo: string;
+  };
+}
+
 export interface PokemonCard {
   id: string;
   name: string;
   types: string[];
-  subtypes?: string[];  // Nouveau champ pour les sous-types
-  supertype?: string;   // Nouveau champ pour le super-type
-  rarity?: string;      // Nouveau champ pour la rareté
+  subtypes?: string[];
+  supertype?: string;
+  rarity?: string;
   hp: string;
   attacks?: {
     name: string;
@@ -35,7 +48,6 @@ export interface PokemonCard {
     };
   };
 }
-
 
 export interface SetDetailsType {
   id: string;
