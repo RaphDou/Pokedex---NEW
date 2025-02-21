@@ -7,6 +7,7 @@ import Link from 'next/link';
 import slugify from 'slugify';
 import CardDisplay from '@/components/CardDisplay.tsx';  // Ton composant CardDisplay
 import Image from 'next/image'; // Import Image from next/image
+import FeatureSection from '@/components/FeatureSection';
 
 interface Set {
   id: string;
@@ -101,13 +102,8 @@ const HomePage: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Typography variant="h3" color="primary" align="center" gutterBottom>
-        Bienvenue sur le Catalogue Pokémon
-      </Typography>
 
-      <Typography variant="h5" align="center" gutterBottom>
-        Découvrez ici une large collection de cartes Pokémon. Vous pouvez explorer les sets, trier les cartes par nom, date de sortie ou rareté, et bien plus encore!
-      </Typography>
+      <FeatureSection />
 
       {/* Affichage du set le plus récent */}
       {latestSet && (
